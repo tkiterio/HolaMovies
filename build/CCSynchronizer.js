@@ -7,9 +7,7 @@ const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
 class CCSynchronizer {
     static Initialize(runNow = false) {
-        console.log("CRON_EXPRESSION = ");
-        console.log(process.env.CRON_EXPRESSION);
-        new cron_1.CronJob('1 1 * * * *', () => {
+        new cron_1.CronJob(process.env.CRON_EXPRESSION || '1 1 * * * *', () => {
             this.run();
         }, null, true);
         if (runNow) {
@@ -192,7 +190,7 @@ CCSynchronizer._working = { gettingPage: false, scrapDetails: false, scrapTorren
 CCSynchronizer._url = "https://www.cinecalidad.to/page/";
 CCSynchronizer._imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
 CCSynchronizer._page = 1;
-CCSynchronizer._maxPage = 10;
+CCSynchronizer._maxPage = Number(process.env.MAX_PAGE) || 10;
 CCSynchronizer._forceFinish = false;
 exports.CCSynchronizer = CCSynchronizer;
 //# sourceMappingURL=CCSynchronizer.js.map

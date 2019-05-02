@@ -14,13 +14,11 @@ export class CCSynchronizer {
     private static _imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
     private static _lastScrappedMovie: any;
     private static _page: number = 1;
-    private static _maxPage: number = 10;
+    private static _maxPage: number = Number(process.env.MAX_PAGE) || 10;
     private static _forceFinish: boolean = false;
 
     public static Initialize(runNow: boolean = false): void {
-        console.log("CRON_EXPRESSION = ");
-        console.log(process.env.CRON_EXPRESSION);
-        new CronJob('1 1 * * * *', () => {
+        new CronJob(process.env.CRON_EXPRESSION || '1 1 * * * *', () => {
             this.run();
         }, null, true);
 
