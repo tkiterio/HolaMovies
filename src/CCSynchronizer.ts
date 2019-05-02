@@ -18,6 +18,8 @@ export class CCSynchronizer {
     private static _forceFinish: boolean = false;
 
     public static Initialize(runNow: boolean = false): void {
+        console.log("CRON_EXPRESSION = ");
+        console.log(process.env.CRON_EXPRESSION);
         new CronJob('1 1 * * * *', () => {
             this.run();
         }, null, true);

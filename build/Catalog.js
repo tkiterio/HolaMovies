@@ -7,6 +7,9 @@ class Catalog {
         this._repository.movies = require("../data/movies.json");
         CCSynchronizer_1.CCSynchronizer.Initialize();
     }
+    static forceUpdate() {
+        CCSynchronizer_1.CCSynchronizer.Initialize(true);
+    }
     static addMovies(movies) {
         for (let movie of movies.reverse()) {
             if (this.isNew(movie.imdb)) {

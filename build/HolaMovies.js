@@ -23,6 +23,9 @@ class HolaMovies {
     getInterface() {
         return this._builder.getInterface();
     }
+    forceUpdate() {
+        Catalog_1.Catalog.forceUpdate();
+    }
 }
 exports.HolaMovies = HolaMovies;
 //# sourceMappingURL=HolaMovies.js.map
