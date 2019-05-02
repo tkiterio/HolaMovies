@@ -1,2 +1,2 @@
-# -Hola-Movies
+# ¡Hola! Movies
 Add-On for Stremio
