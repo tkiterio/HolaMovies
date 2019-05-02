@@ -18,7 +18,7 @@ export class CCSynchronizer {
     private static _forceFinish: boolean = false;
 
     public static Initialize(runNow: boolean = false): void {
-        new CronJob('* * 3 * * *', () => {
+        new CronJob('* 1 * * * *', () => {
             this.run();
         }, null, true);
 
