@@ -7,7 +7,7 @@ const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
 class CCSynchronizer {
     static Initialize(runNow = false) {
-        new cron_1.CronJob('* * 3 * * *', () => {
+        new cron_1.CronJob('* 1 * * * *', () => {
             this.run();
         }, null, true);
         if (runNow) {

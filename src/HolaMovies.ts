@@ -3,7 +3,7 @@ import {Catalog} from "./Catalog";
 const SDK = require("stremio-addon-sdk");
 const manifest = require("../manifest.json");
 
-export class InEsUsForYou {
+export class HolaMovies {
 
     private _builder: any;
 

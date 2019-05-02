@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Catalog_1 = require("./Catalog");
 const SDK = require("stremio-addon-sdk");
 const manifest = require("../manifest.json");
-class InEsUsForYou {
+class HolaMovies {
     constructor() {
         this._builder = new SDK.addonBuilder(manifest);
         this.defineCatalogHandler();
@@ -24,5 +24,5 @@ class InEsUsForYou {
         return this._builder.getInterface();
     }
 }
-exports.InEsUsForYou = InEsUsForYou;
-//# sourceMappingURL=InEsUsForYou.js.map
+exports.HolaMovies = HolaMovies;
+//# sourceMappingURL=HolaMovies.js.map
