@@ -3,13 +3,7 @@
 const {serveHTTP, publishToCentral} = require("stremio-addon-sdk");
 const holaMovies = new (require("./build/HolaMovies").HolaMovies)();
 
-serveHTTP(holaMovies.getInterface(), {port: process.env.PORT || 56641})
-    .then(response => {
-        response.server.get("forceUpdate", (req, res) => {
-            holaMovies.forceUpdate();
-            res.end("Updated");
-        })
-    })
+serveHTTP(holaMovies.getInterface(), {port: process.env.PORT || 56641});
 
 // when you've deployed your addon, un-comment this line
 // publishToCentral("https://holamovies.herokuapp.com/manifest.json")
