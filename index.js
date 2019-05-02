@@ -5,7 +5,7 @@ const holaMovies = new (require("./build/HolaMovies").HolaMovies)();
 
 serveHTTP(holaMovies.getInterface(), {port: process.env.PORT || 56641})
     .then(response => {
-        response.server.on("forceUpdate", (req, res) => {
+        response.server.get("forceUpdate", (req, res) => {
             holaMovies.forceUpdate();
             res.end("Updated");
         })
