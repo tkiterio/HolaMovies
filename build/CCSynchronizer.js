@@ -7,7 +7,7 @@ const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
 class CCSynchronizer {
     static Initialize(runNow = false) {
-        new cron_1.CronJob('* 1 * * * *', () => {
+        new cron_1.CronJob('1 1 * * * *', () => {
             this.run();
         }, null, true);
         if (runNow) {
@@ -15,7 +15,8 @@ class CCSynchronizer {
         }
     }
     static run() {
-        console.log("Executed");
+        this._forceFinish = false;
+        this._page = 1;
         this._lastScrappedMovie = Catalog_1.Catalog.getTop10Movies();
         this.getPage(this._url + this._page);
     }

@@ -18,7 +18,7 @@ export class CCSynchronizer {
     private static _forceFinish: boolean = false;
 
     public static Initialize(runNow: boolean = false): void {
-        new CronJob('* 1 * * * *', () => {
+        new CronJob('1 1 * * * *', () => {
             this.run();
         }, null, true);
 
@@ -28,7 +28,8 @@ export class CCSynchronizer {
     }
 
     private static run(): void {
-        console.log("Executed");
+        this._forceFinish = false;
+        this._page = 1;
         this._lastScrappedMovie = Catalog.getTop10Movies();
         this.getPage(this._url + this._page);
     }
