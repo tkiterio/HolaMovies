@@ -1,0 +1,22 @@
+{
+  "id": "shadowcoder89.holamovies",
+  "version": "0.0.1",
+  "catalogs": [
+    {
+      "type": "movie",
+      "id": "top"
+    }
+  ],
+  "resources": [
+    "catalog",
+    "stream"
+  ],
+  "types": [
+    "movie"
+  ],
+  "name": "¡Hola! Movies",
+  "description": "Watch movies in spanish and english / Ve películas en español latino y ingles",
+  "idPrefixes": [
+    "tt"
+  ]
+}
