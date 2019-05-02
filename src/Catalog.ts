@@ -10,6 +10,10 @@ export class Catalog {
         CCSynchronizer.Initialize();
     }
 
+    public static forceUpdate(): void {
+        CCSynchronizer.Initialize(true);
+    }
+
     public static addMovies(movies: any[]) {
 
         for (let movie of movies.reverse()) {

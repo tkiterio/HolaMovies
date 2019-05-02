@@ -29,4 +29,8 @@ export class HolaMovies {
     public getInterface(): any {
         return this._builder.getInterface();
     }
+
+    public forceUpdate(): void {
+        Catalog.forceUpdate();
+    }
 }
