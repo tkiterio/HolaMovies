@@ -4,7 +4,10 @@
   "catalogs": [
     {
       "type": "movie",
-      "id": "top"
+      "id": "top",
+      "extra": [
+        { "name": "skip", "isRequired": false }
+      ]
     }
   ],
   "resources": [

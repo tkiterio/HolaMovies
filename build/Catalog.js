@@ -7,9 +7,6 @@ class Catalog {
         this._repository.movies = require("../data/movies.json");
         CCSynchronizer_1.CCSynchronizer.Initialize();
     }
-    static forceUpdate() {
-        CCSynchronizer_1.CCSynchronizer.Initialize(true);
-    }
     static addMovies(movies) {
         for (let movie of movies.reverse()) {
             if (this.isNew(movie.imdb)) {
@@ -25,16 +22,16 @@ class Catalog {
     static getTop10Movies() {
         return this._repository.movies.slice(0, 10);
     }
-    static listMetas() {
+    static listMetas(skip = 0) {
         let metas = [];
         for (let movie of this._repository.movies) {
             metas.push({
                 id: movie.imdb,
                 type: "movie",
-                "isFree": true,
+                isFree: true,
             });
         }
-        return metas;
+        return metas.slice(skip, skip + 100);
     }
     static getStream(imdb) {
         for (let movie of this._repository.movies) {

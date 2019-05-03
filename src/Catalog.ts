@@ -10,10 +10,6 @@ export class Catalog {
         CCSynchronizer.Initialize();
     }
 
-    public static forceUpdate(): void {
-        CCSynchronizer.Initialize(true);
-    }
-
     public static addMovies(movies: any[]) {
 
         for (let movie of movies.reverse()) {
@@ -33,18 +29,18 @@ export class Catalog {
         return this._repository.movies.slice(0, 10);
     }
 
-    public static listMetas(): any {
+    public static listMetas(skip: number = 0): any {
         let metas: any = [];
 
         for (let movie of this._repository.movies) {
             metas.push({
                 id: movie.imdb,
                 type: "movie",
-                "isFree": true,
+                isFree: true,
             })
         }
 
-        return metas;
+        return metas.slice(skip, skip + 100);
     }
 
     public static getStream(imdb: string): any {

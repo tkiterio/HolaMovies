@@ -16,7 +16,7 @@ export class HolaMovies {
 
     private defineCatalogHandler(): void {
         this._builder.defineCatalogHandler((request: any) => {
-            return Promise.resolve({metas: (request.type === "movie" && request.id === "top") ? Catalog.listMetas() : []});
+            return Promise.resolve({metas: (request.type === "movie" && request.id === "top") ? Catalog.listMetas(request.extra.skip) : []});
         });
     }
 
@@ -28,9 +28,5 @@ export class HolaMovies {
 
     public getInterface(): any {
         return this._builder.getInterface();
-    }
-
-    public forceUpdate(): void {
-        Catalog.forceUpdate();
     }
 }
