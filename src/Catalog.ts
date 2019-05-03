@@ -30,6 +30,7 @@ export class Catalog {
     }
 
     public static listMetas(skip: number = 0): any {
+        console.log("SKIP => ", skip);
         let metas: any = [];
 
         for (let movie of this._repository.movies) {
