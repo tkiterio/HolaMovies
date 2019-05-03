@@ -16,7 +16,6 @@ export class HolaMovies {
 
     private defineCatalogHandler(): void {
         this._builder.defineCatalogHandler((request: any) => {
-            console.log(JSON.stringify(request));
             return Promise.resolve({metas: (request.type === "movie" && request.id === "top") ? Catalog.listMetas(request.extra.skip) : []});
         });
     }
