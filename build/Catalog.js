@@ -23,7 +23,7 @@ class Catalog {
         return this._repository.movies.slice(0, 10);
     }
     static listMetas(skip = 0) {
-        console.log("SKIP => ", skip);
+        console.log("SKIP => ", skip + 100);
         let metas = [];
         for (let movie of this._repository.movies) {
             metas.push({
