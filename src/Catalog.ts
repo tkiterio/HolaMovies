@@ -30,7 +30,7 @@ export class Catalog {
     }
 
     public static listMetas(skip: number = 0): any {
-        console.log("SKIP => ", skip + 100);
+        console.log("SKIP => ", Number(skip) + 100);
         let metas: any = [];
 
         for (let movie of this._repository.movies) {
@@ -41,7 +41,7 @@ export class Catalog {
             })
         }
 
-        return metas.slice(skip, skip + 100);
+        return metas.slice(skip, Number(skip) + 100);
     }
 
     public static getStream(imdb: string): any {

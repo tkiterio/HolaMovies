@@ -23,7 +23,7 @@ class Catalog {
         return this._repository.movies.slice(0, 10);
     }
     static listMetas(skip = 0) {
-        console.log("SKIP => ", skip + 100);
+        console.log("SKIP => ", Number(skip) + 100);
         let metas = [];
         for (let movie of this._repository.movies) {
             metas.push({
@@ -32,7 +32,7 @@ class Catalog {
                 isFree: true,
             });
         }
-        return metas.slice(skip, skip + 100);
+        return metas.slice(skip, Number(skip) + 100);
     }
     static getStream(imdb) {
         for (let movie of this._repository.movies) {
