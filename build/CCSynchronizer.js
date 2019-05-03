@@ -171,7 +171,7 @@ class CCSynchronizer {
                 return "tracker:" + x;
             }).concat(["dht:" + infoHash]),
             tag: tags,
-            title: tags[0],
+            title: tags[0] + " Español / English",
         };
     }
     static isInLastScrapped10Movies(imdb) {

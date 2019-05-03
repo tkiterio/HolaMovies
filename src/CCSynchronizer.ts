@@ -184,7 +184,7 @@ export class CCSynchronizer {
                 return "tracker:" + x
             }).concat(["dht:" + infoHash]),
             tag: tags,
-            title: tags[0], // show quality in the UI
+            title: tags[0] + " Español / English", // show quality in the UI
         }
     }
 
