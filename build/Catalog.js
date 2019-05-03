@@ -1,23 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs");
 const CCSynchronizer_1 = require("./CCSynchronizer");
+const DataProvider_1 = require("./DataProvider");
 class Catalog {
     static Initialize() {
-        this._repository.movies = require("../data/movies.json");
-        CCSynchronizer_1.CCSynchronizer.Initialize();
+        DataProvider_1.DataProvider.Initialize();
+        DataProvider_1.DataProvider.listAllMovies()
+            .then(response => {
+            this._repository.movies = response;
+            CCSynchronizer_1.CCSynchronizer.Initialize(true);
+        });
     }
     static addMovies(movies) {
         for (let movie of movies.reverse()) {
             if (this.isNew(movie.imdb)) {
-                this._repository.movies.unshift({
+                let newMovie = {
                     order: this._repository.movies.length,
                     imdb: movie.imdb,
                     magnet: movie.magnet
-                });
+                };
+                this._repository.movies.unshift(newMovie);
+                DataProvider_1.DataProvider.addMovie(newMovie);
             }
         }
-        fs.writeFileSync("./data/movies.json", JSON.stringify(this._repository.movies));
     }
     static getTop10Movies() {
         return this._repository.movies.slice(0, 10);

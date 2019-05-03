@@ -1,28 +1,34 @@
-import * as fs from "fs";
 import {CCSynchronizer} from "./CCSynchronizer";
+import {DataProvider} from "./DataProvider";
 
 export class Catalog {
 
     private static _repository: any = {movies: []};
 
     public static Initialize(): void {
-        this._repository.movies = require("../data/movies.json");
-        CCSynchronizer.Initialize();
+        DataProvider.Initialize();
+        DataProvider.listAllMovies()
+            .then(response => {
+                this._repository.movies = response;
+                CCSynchronizer.Initialize(true);
+            })
     }
 
     public static addMovies(movies: any[]) {
 
         for (let movie of movies.reverse()) {
             if (this.isNew(movie.imdb)) {
-                this._repository.movies.unshift({
+
+                let newMovie = {
                     order: this._repository.movies.length,
                     imdb: movie.imdb,
                     magnet: movie.magnet
-                });
+                };
+
+                this._repository.movies.unshift(newMovie);
+                DataProvider.addMovie(newMovie);
             }
         }
-
-        fs.writeFileSync("./data/movies.json", JSON.stringify(this._repository.movies));
     }
 
     public static getTop10Movies(): any {
