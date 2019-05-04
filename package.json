@@ -14,14 +14,16 @@
     "cheerio": "^1.0.0-rc.3",
     "cron": "^1.7.1",
     "magnet-uri": "^5.2.4",
+    "pg": "^7.10.0",
     "request": "^2.88.0",
     "stremio-addon-sdk": "^1.2.0"
   },
   "devDependencies": {
-    "@types/node": "^11.13.8",
     "@types/cheerio": "^0.22.11",
     "@types/cron": "^1.7.0",
     "@types/magnet-uri": "^5.1.2",
+    "@types/node": "^11.13.8",
+    "@types/pg": "^7.4.14",
     "@types/request": "^2.48.1"
   }
 }
