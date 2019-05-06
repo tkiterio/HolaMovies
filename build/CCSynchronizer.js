@@ -1,10 +1,19 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
 const cheerio = require("cheerio");
 const magnet = require("magnet-uri");
 const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
+const DataProvider_1 = require("./DataProvider");
 class CCSynchronizer {
     static Initialize(runNow = false) {
         new cron_1.CronJob(process.env.CRON_EXPRESSION || '1 1 * * * *', () => {
@@ -121,7 +130,7 @@ class CCSynchronizer {
                     request.get({
                         uri: url,
                         timeout: 15000
-                    }, (error, response, html) => {
+                    }, (error, response, html) => __awaiter(this, void 0, void 0, function* () {
                         if (error) {
                             console.error(`Get torrent fail for ${url}`);
                             this._repositoryTorrents.failed.push(url);
@@ -133,14 +142,15 @@ class CCSynchronizer {
                             let $ = cheerio.load(html);
                             this._movies.push({
                                 imdb: this._repositoryTorrents.tail[0].imdb,
-                                magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value)
+                                magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value),
+                                meta: yield DataProvider_1.DataProvider.getMovieMeta(this._repositoryTorrents.tail[0].imdb)
                             });
                             this._repositoryTorrents.done.push(url);
                             this._repositoryTorrents.tail.splice(0, 1);
                             this._working.scrapTorrents = false;
                             this.scrapTorrents();
                         }
-                    });
+                    }));
                 }
                 catch (e) {
                     console.error(`Get torrent fail for ${url}`);

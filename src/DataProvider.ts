@@ -1,16 +1,31 @@
 import {Client} from "pg";
 
+const Stremio = require("stremio-addons");
+
 export class DataProvider {
 
     private static _client: any;
+    private static _cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
+    private static _addons: any;
 
-    public static Initialize() {
-        this._client = new Client({
-            connectionString: process.env.DATABASE_URL,
-            ssl: true,
-        });
+    public static Initialize(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                this._client = new Client({
+                    connectionString: process.env.DATABASE_URL,
+                    ssl: true,
+                });
 
-        this._client.connect();
+                this._client.connect();
+                this._addons = new Stremio.Client();
+                this._addons.add(this._cinemataEndpoint);
+                // this._client.query(`UPDATE holamovies.movies set meta = ''`, (err: any, res: any) => {});
+
+                resolve();
+            } catch (e) {
+                reject();
+            }
+        })
     }
 
     public static listAllMovies(): Promise<any> {
@@ -46,6 +61,30 @@ export class DataProvider {
                 console.log("Error creating new movie");
                 console.log(err);
             }
+        });
+    }
+
+    public static getMovieMeta(imdb: string): Promise<any> {
+        return new Promise(resolve => {
+            this._addons.meta.get({query: {imdb_id: imdb}}, (error: any, meta: any) => {
+                if (error) {
+                    resolve({})
+                } else {
+                    resolve(meta);
+                }
+            });
+        });
+    }
+
+    public static addMovieMeta(movies: any) {
+        let movie = movies[0];
+        this._client.query(`UPDATE holamovies.movies set meta = '${JSON.stringify(movie.meta)}' WHERE imdb = '${movie.imdb}'`, (err: any, res: any) => {
+            if (err) {
+                console.log("Error updating movie", "|", movie.imdb);
+                console.log(err);
+            }
+            movies.splice(0, 1);
+            this.addMovieMeta(movies);
         });
     }
 }

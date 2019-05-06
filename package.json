@@ -16,7 +16,8 @@
     "magnet-uri": "^5.2.4",
     "pg": "^7.10.0",
     "request": "^2.88.0",
-    "stremio-addon-sdk": "^1.2.0"
+    "stremio-addon-sdk": "^1.2.0",
+    "stremio-addons": "^2.8.14"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.11",

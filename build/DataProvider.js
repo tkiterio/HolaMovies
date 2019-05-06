@@ -1,13 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const pg_1 = require("pg");
+const Stremio = require("stremio-addons");
 class DataProvider {
     static Initialize() {
-        this._client = new pg_1.Client({
-            connectionString: process.env.DATABASE_URL,
-            ssl: true,
+        return new Promise((resolve, reject) => {
+            try {
+                this._client = new pg_1.Client({
+                    connectionString: process.env.DATABASE_URL,
+                    ssl: true,
+                });
+                this._client.connect();
+                this._addons = new Stremio.Client();
+                this._addons.add(this._cinemataEndpoint);
+                // this._client.query(`UPDATE holamovies.movies set meta = ''`, (err: any, res: any) => {});
+                resolve();
+            }
+            catch (e) {
+                reject();
+            }
         });
-        this._client.connect();
     }
     static listAllMovies() {
         return new Promise(resolve => {
@@ -44,6 +56,30 @@ class DataProvider {
             }
         });
     }
+    static getMovieMeta(imdb) {
+        return new Promise(resolve => {
+            this._addons.meta.get({ query: { imdb_id: imdb } }, (error, meta) => {
+                if (error) {
+                    resolve({});
+                }
+                else {
+                    resolve(meta);
+                }
+            });
+        });
+    }
+    static addMovieMeta(movies) {
+        let movie = movies[0];
+        this._client.query(`UPDATE holamovies.movies set meta = '${JSON.stringify(movie.meta)}' WHERE imdb = '${movie.imdb}'`, (err, res) => {
+            if (err) {
+                console.log("Error updating movie", "|", movie.imdb);
+                console.log(err);
+            }
+            movies.splice(0, 1);
+            this.addMovieMeta(movies);
+        });
+    }
 }
+DataProvider._cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
 exports.DataProvider = DataProvider;
 //# sourceMappingURL=DataProvider.js.map

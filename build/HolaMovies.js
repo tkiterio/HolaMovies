@@ -12,7 +12,7 @@ class HolaMovies {
     }
     defineCatalogHandler() {
         this._builder.defineCatalogHandler((request) => {
-            return Promise.resolve({ metas: (request.type === "movie" && request.id === "top") ? Catalog_1.Catalog.listMetas(request.extra.skip) : [] });
+            return Promise.resolve({ metas: (request.type === "movie" && request.id === "top") ? Catalog_1.Catalog.listMetas(request.extra) : [] });
         });
     }
     defineStreamHandler() {

@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import * as magnet from "magnet-uri";
 import {Catalog} from "./Catalog";
 import {CronJob} from "cron";
+import {DataProvider} from "./DataProvider";
 
 export class CCSynchronizer {
 
@@ -135,7 +136,7 @@ export class CCSynchronizer {
                     request.get({
                         uri: url,
                         timeout: 15000
-                    }, (error, response, html) => {
+                    }, async (error, response, html) => {
                         if (error) {
                             console.error(`Get torrent fail for ${url}`);
                             this._repositoryTorrents.failed.push(url);
@@ -147,7 +148,8 @@ export class CCSynchronizer {
 
                             this._movies.push({
                                 imdb: this._repositoryTorrents.tail[0].imdb,
-                                magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value)
+                                magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value),
+                                meta: await DataProvider.getMovieMeta(this._repositoryTorrents.tail[0].imdb)
                             });
 
                             this._repositoryTorrents.done.push(url);

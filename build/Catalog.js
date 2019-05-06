@@ -4,11 +4,13 @@ const CCSynchronizer_1 = require("./CCSynchronizer");
 const DataProvider_1 = require("./DataProvider");
 class Catalog {
     static Initialize() {
-        DataProvider_1.DataProvider.Initialize();
-        DataProvider_1.DataProvider.listAllMovies()
-            .then(response => {
-            this._repository.movies = response;
-            CCSynchronizer_1.CCSynchronizer.Initialize(true);
+        DataProvider_1.DataProvider.Initialize()
+            .then(() => {
+            DataProvider_1.DataProvider.listAllMovies()
+                .then(response => {
+                this._repository.movies = response;
+                CCSynchronizer_1.CCSynchronizer.Initialize(true);
+            });
         });
     }
     static addMovies(movies) {
@@ -27,7 +29,7 @@ class Catalog {
     static getTop10Movies() {
         return this._repository.movies.slice(0, 10);
     }
-    static listMetas(skip = 0) {
+    static listMetas(extra = {}) {
         let metas = [];
         for (let movie of this._repository.movies) {
             metas.push({
@@ -36,7 +38,22 @@ class Catalog {
                 isFree: true,
             });
         }
-        return metas.slice(skip, Number(skip) + 100);
+        // if (extra.search) {
+        //     let movies: any = [];
+        //     console.log("STARTED");
+        //
+        //     metas.forEach(async (meta: any) => {
+        //         movies.push({
+        //             imdb: meta.id,
+        //             meta: await DataProvider.getMovieMeta(meta.id)
+        //         })
+        //
+        //         if (movies.length === metas.length) {
+        //             require("fs").writeFileSync("./metasInfo.json", JSON.stringify(movies), "utf8");
+        //         }
+        //     });
+        // }
+        return metas.slice(extra.skip || 0, Number(extra.skip || 0) + 100);
     }
     static getStream(imdb) {
         for (let movie of this._repository.movies) {
