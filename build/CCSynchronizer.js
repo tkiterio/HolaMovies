@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
 const cheerio = require("cheerio");
 const magnet = require("magnet-uri");
-const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
 const DataProvider_1 = require("./DataProvider");
 class CCSynchronizer {
@@ -26,7 +25,7 @@ class CCSynchronizer {
     static run() {
         this._forceFinish = false;
         this._page = 1;
-        this._lastScrappedMovie = Catalog_1.Catalog.getTop10Movies();
+        this._lastScrappedMovie = []; ///Catalog.getTop10Movies();
         this.getPage(this._url + this._page);
     }
     static getPage(url) {
@@ -91,7 +90,7 @@ class CCSynchronizer {
                                                 this._forceFinish = true;
                                             }
                                             else {
-                                                this._repositoryTorrents.tail.push({ imdb, url: `https://www.cinecalidad.to${item.attribs.href}` });
+                                                this._repositoryTorrents.tail.push({ imdb, url: `https://www.cinecalidad.to${item.attribs.href}`, failed: 0 });
                                             }
                                         }
                                         catch (e) {
@@ -125,18 +124,14 @@ class CCSynchronizer {
             if (this._repositoryTorrents.tail.length > 0) {
                 console.log("Getting torrent " + (this._repositoryTorrents.done.length + 1));
                 this._working.scrapTorrents = true;
-                let url = this._repositoryTorrents.tail[0].url;
+                let torrent = this._repositoryTorrents.tail[0];
                 try {
                     request.get({
-                        uri: url,
+                        uri: torrent.url,
                         timeout: 15000
                     }, (error, response, html) => __awaiter(this, void 0, void 0, function* () {
                         if (error) {
-                            console.error(`Get torrent fail for ${url}`);
-                            this._repositoryTorrents.failed.push(url);
-                            this._repositoryTorrents.tail.splice(0, 1);
-                            this._working.scrapTorrents = false;
-                            this.scrapTorrents();
+                            this.scrapTorrentsFailHandler(torrent);
                         }
                         else {
                             let $ = cheerio.load(html);
@@ -145,7 +140,7 @@ class CCSynchronizer {
                                 magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value),
                                 meta: yield DataProvider_1.DataProvider.getMovieMeta(this._repositoryTorrents.tail[0].imdb)
                             });
-                            this._repositoryTorrents.done.push(url);
+                            this._repositoryTorrents.done.push(torrent);
                             this._repositoryTorrents.tail.splice(0, 1);
                             this._working.scrapTorrents = false;
                             this.scrapTorrents();
@@ -153,18 +148,28 @@ class CCSynchronizer {
                     }));
                 }
                 catch (e) {
-                    console.error(`Get torrent fail for ${url}`);
-                    this._repositoryTorrents.failed.push(url);
-                    this._repositoryTorrents.tail.splice(0, 1);
-                    this._working.scrapTorrents = false;
-                    this.scrapTorrents();
+                    this.scrapTorrentsFailHandler(torrent);
                 }
             }
             else {
-                Catalog_1.Catalog.addMovies(this._movies);
+                require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
+                // Catalog.addMovies(this._movies);
                 console.log("Process Done");
             }
         }
+    }
+    static scrapTorrentsFailHandler(torrent) {
+        torrent.failed++;
+        console.error(`Get torrent fail ${torrent.failed} times for ${torrent.imdb} retrying.`);
+        if (torrent.failed > 9) {
+            this._repositoryTorrents.tail.splice(0, 1);
+            this._repositoryTorrents.failed.push(torrent);
+            this._working.scrapTorrents = false;
+            this.scrapTorrents();
+        }
+        setTimeout(() => {
+            this.scrapTorrents();
+        }, 5000);
     }
     static magnetTransform(type, uri) {
         const parsed = magnet.decode(uri);

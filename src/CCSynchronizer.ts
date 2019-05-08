@@ -31,7 +31,7 @@ export class CCSynchronizer {
     private static run(): void {
         this._forceFinish = false;
         this._page = 1;
-        this._lastScrappedMovie = Catalog.getTop10Movies();
+        this._lastScrappedMovie = []///Catalog.getTop10Movies();
         this.getPage(this._url + this._page);
     }
 
@@ -98,7 +98,7 @@ export class CCSynchronizer {
                                                 this._repositoryPages.tail = [];
                                                 this._forceFinish = true;
                                             } else {
-                                                this._repositoryTorrents.tail.push({imdb, url: `https://www.cinecalidad.to${item.attribs.href}`});
+                                                this._repositoryTorrents.tail.push({imdb, url: `https://www.cinecalidad.to${item.attribs.href}`, failed: 0});
                                             }
                                         } catch (e) {
                                             console.log("A not valid IMDB Movie");
@@ -130,19 +130,15 @@ export class CCSynchronizer {
             if (this._repositoryTorrents.tail.length > 0) {
                 console.log("Getting torrent " + (this._repositoryTorrents.done.length + 1));
                 this._working.scrapTorrents = true;
-                let url = this._repositoryTorrents.tail[0].url;
+                let torrent = this._repositoryTorrents.tail[0];
 
                 try {
                     request.get({
-                        uri: url,
+                        uri: torrent.url,
                         timeout: 15000
                     }, async (error, response, html) => {
                         if (error) {
-                            console.error(`Get torrent fail for ${url}`);
-                            this._repositoryTorrents.failed.push(url);
-                            this._repositoryTorrents.tail.splice(0, 1);
-                            this._working.scrapTorrents = false;
-                            this.scrapTorrents();
+                            this.scrapTorrentsFailHandler(torrent);
                         } else {
                             let $ = cheerio.load(html);
 
@@ -152,25 +148,38 @@ export class CCSynchronizer {
                                 meta: await DataProvider.getMovieMeta(this._repositoryTorrents.tail[0].imdb)
                             });
 
-                            this._repositoryTorrents.done.push(url);
+                            this._repositoryTorrents.done.push(torrent);
                             this._repositoryTorrents.tail.splice(0, 1);
                             this._working.scrapTorrents = false;
                             this.scrapTorrents();
                         }
                     });
                 } catch (e) {
-                    console.error(`Get torrent fail for ${url}`);
-                    this._repositoryTorrents.failed.push(url);
-                    this._repositoryTorrents.tail.splice(0, 1);
-                    this._working.scrapTorrents = false;
-                    this.scrapTorrents();
+                    this.scrapTorrentsFailHandler(torrent);
                 }
 
             } else {
-                Catalog.addMovies(this._movies);
+                require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
+                // Catalog.addMovies(this._movies);
                 console.log("Process Done");
             }
         }
+    }
+
+    private static scrapTorrentsFailHandler(torrent: any) {
+        torrent.failed++;
+        console.error(`Get torrent fail ${torrent.failed} times for ${torrent.imdb} retrying.`);
+
+        if (torrent.failed > 9) {
+            this._repositoryTorrents.tail.splice(0, 1);
+            this._repositoryTorrents.failed.push(torrent);
+            this._working.scrapTorrents = false;
+            this.scrapTorrents();
+        }
+
+        setTimeout(() => {
+            this.scrapTorrents();
+        }, 5000);
     }
 
     private static magnetTransform(type: string, uri: string): any {
