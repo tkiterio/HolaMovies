@@ -20,17 +20,24 @@ export class Catalog {
 
     public static addMovies(movies: any[]) {
 
-        for (let movie of movies.reverse()) {
+        for (let movie of movies) {
             if (this.isNew(movie.imdb)) {
+                if (movie.hasOwnProperty("meta")) {
+                    let newMovie: any = {};
+                    newMovie.id = movie.imdb;
+                    newMovie.name = movie.meta.name;
+                    newMovie.release_date = movie.meta.release_date || movie.meta.released || movie.meta.dvdRelease;
+                    newMovie.runtime = movie.meta.runtime;
+                    newMovie.type = movie.meta.type;
+                    newMovie.year = movie.meta.year;
+                    newMovie.info_hash = movie.magnet.infoHash;
+                    newMovie.sources = JSON.stringify(movie.magnet.sources);
+                    newMovie.tags = JSON.stringify(movie.magnet.tag);
+                    newMovie.title = movie.magnet.title;
 
-                let newMovie = {
-                    order: this._repository.movies.length,
-                    imdb: movie.imdb,
-                    magnet: movie.magnet
-                };
-
-                this._repository.movies.unshift(newMovie);
-                DataProvider.addMovie(newMovie);
+                    this._repository.movies.push(newMovie);
+                    DataProvider.addMovie(newMovie);
+                }
             }
         }
     }

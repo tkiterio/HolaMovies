@@ -159,8 +159,8 @@ export class CCSynchronizer {
                 }
 
             } else {
-                require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
-                // Catalog.addMovies(this._movies);
+                // require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
+                Catalog.addMovies(this._movies);
                 console.log("Process Done");
             }
         }

@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
 const cheerio = require("cheerio");
 const magnet = require("magnet-uri");
+const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
 const DataProvider_1 = require("./DataProvider");
 class CCSynchronizer {
@@ -152,8 +153,8 @@ class CCSynchronizer {
                 }
             }
             else {
-                require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
-                // Catalog.addMovies(this._movies);
+                // require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
+                Catalog_1.Catalog.addMovies(this._movies);
                 console.log("Process Done");
             }
         }

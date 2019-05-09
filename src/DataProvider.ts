@@ -55,8 +55,8 @@ export class DataProvider {
     }
 
     public static addMovie(movie: any): void {
-        let data = `'${movie.imdb}','${movie.magnet.type}','${movie.magnet.infoHash}','${JSON.stringify(movie.magnet.sources)}','${JSON.stringify(movie.magnet.tag)}','${movie.magnet.title}'`;
-        this._client.query(`INSERT INTO holamovies.movies (imdb, source_type, info_hash, sources, tags, title) VALUES (${data})`, (err: any, res: any) => {
+        let data = `'${movie.id}','${movie.name}','${movie.release_date}','${movie.runtime}','${movie.type}','${movie.year}','${movie.info_hash}','${movie.sources}','${movie.tags}','${movie.title}'`;
+        this._client.query(`INSERT INTO holamovies.imdb_movies (id, name, release_date, runtime, type, "year", info_hash, sources, tags, title) VALUES (${data})`, (err: any, res: any) => {
             if (err) {
                 console.log("Error creating new movie");
                 console.log(err);

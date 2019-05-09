@@ -14,15 +14,23 @@ class Catalog {
         });
     }
     static addMovies(movies) {
-        for (let movie of movies.reverse()) {
+        for (let movie of movies) {
             if (this.isNew(movie.imdb)) {
-                let newMovie = {
-                    order: this._repository.movies.length,
-                    imdb: movie.imdb,
-                    magnet: movie.magnet
-                };
-                this._repository.movies.unshift(newMovie);
-                DataProvider_1.DataProvider.addMovie(newMovie);
+                if (movie.hasOwnProperty("meta")) {
+                    let newMovie = {};
+                    newMovie.id = movie.imdb;
+                    newMovie.name = movie.meta.name;
+                    newMovie.release_date = movie.meta.release_date || movie.meta.released || movie.meta.dvdRelease;
+                    newMovie.runtime = movie.meta.runtime;
+                    newMovie.type = movie.meta.type;
+                    newMovie.year = movie.meta.year;
+                    newMovie.info_hash = movie.magnet.infoHash;
+                    newMovie.sources = JSON.stringify(movie.magnet.sources);
+                    newMovie.tags = JSON.stringify(movie.magnet.tag);
+                    newMovie.title = movie.magnet.title;
+                    this._repository.movies.push(newMovie);
+                    DataProvider_1.DataProvider.addMovie(newMovie);
+                }
             }
         }
     }
