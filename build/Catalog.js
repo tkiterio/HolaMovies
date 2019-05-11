@@ -1,85 +1,73 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const CCSynchronizer_1 = require("./CCSynchronizer");
+const request = require("request");
+const Synchronizer_1 = require("./Synchronizer");
 const DataProvider_1 = require("./DataProvider");
+const Movie_1 = require("./Movie");
 class Catalog {
     static Initialize() {
         DataProvider_1.DataProvider.Initialize()
             .then(() => {
             DataProvider_1.DataProvider.listAllMovies()
                 .then(response => {
-                this._repository.movies = response;
-                CCSynchronizer_1.CCSynchronizer.Initialize(true);
+                this._movies = response;
+                Synchronizer_1.Synchronizer.Initialize(true);
+            });
+        })
+            .catch(() => {
+            request.get(process.env.JSON_DATA_URL, (error, response, data) => {
+                data = JSON.parse(data);
+                data.values.forEach((value) => {
+                    let row = {};
+                    for (let i = 0; i < value.length; i++) {
+                        row[data.fields[i]] = value[i];
+                    }
+                    this._movies.push(new Movie_1.Movie(row));
+                });
             });
         });
     }
-    static addMovies(movies) {
-        for (let movie of movies) {
-            if (this.isNew(movie.imdb)) {
-                if (movie.hasOwnProperty("meta")) {
-                    let newMovie = {};
-                    newMovie.id = movie.imdb;
-                    newMovie.name = movie.meta.name;
-                    newMovie.release_date = movie.meta.release_date || movie.meta.released || movie.meta.dvdRelease;
-                    newMovie.runtime = movie.meta.runtime;
-                    newMovie.type = movie.meta.type;
-                    newMovie.year = movie.meta.year;
-                    newMovie.info_hash = movie.magnet.infoHash;
-                    newMovie.sources = JSON.stringify(movie.magnet.sources);
-                    newMovie.tags = JSON.stringify(movie.magnet.tag);
-                    newMovie.title = movie.magnet.title;
-                    this._repository.movies.push(newMovie);
-                    DataProvider_1.DataProvider.addMovie(newMovie);
-                }
-            }
+    static addMovie(movie) {
+        if (this.isNew(movie.id)) {
+            this._movies.unshift(movie);
         }
     }
     static getTop10Movies() {
-        return this._repository.movies.slice(0, 10);
+        return this._movies.slice(0, 10);
     }
     static listMetas(extra = {}) {
         let metas = [];
-        for (let movie of this._repository.movies) {
-            metas.push({
-                id: movie.imdb,
-                type: "movie",
-                isFree: true,
+        if (extra.search) {
+            this._movies.filter(movie => {
+                if (movie.data.name.toLowerCase().includes(extra.search.toLowerCase())) {
+                    metas.push(movie.meta);
+                }
             });
         }
-        // if (extra.search) {
-        //     let movies: any = [];
-        //     console.log("STARTED");
-        //
-        //     metas.forEach(async (meta: any) => {
-        //         movies.push({
-        //             imdb: meta.id,
-        //             meta: await DataProvider.getMovieMeta(meta.id)
-        //         })
-        //
-        //         if (movies.length === metas.length) {
-        //             require("fs").writeFileSync("./metasInfo.json", JSON.stringify(movies), "utf8");
-        //         }
-        //     });
-        // }
+        else {
+            for (let movie of this._movies) {
+                metas.push(movie.meta);
+            }
+        }
         return metas.slice(extra.skip || 0, Number(extra.skip || 0) + 100);
     }
-    static getStream(imdb) {
-        for (let movie of this._repository.movies) {
-            if (movie.imdb === imdb) {
+    static getStream(id) {
+        for (let movie of this._movies) {
+            if (movie.id === id) {
                 return [movie.magnet];
             }
         }
         return [];
     }
-    static isNew(imdb) {
-        for (let movie of this._repository.movies) {
-            if (movie.imdb === imdb) {
+    static isNew(id) {
+        for (let movie of this._movies) {
+            if (movie.id === id) {
                 return false;
             }
         }
         return true;
     }
 }
-Catalog._repository = { movies: [] };
+Catalog._movies = [];
 exports.Catalog = Catalog;
 //# sourceMappingURL=Catalog.js.map
