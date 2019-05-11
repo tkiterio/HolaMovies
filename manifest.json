@@ -1,6 +1,6 @@
 {
   "id": "com.herokuapp.dsambo.holamovies",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "catalogs": [
     {
       "type": "movie",
