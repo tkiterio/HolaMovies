@@ -2,7 +2,7 @@
 
 This is a Stremio Add-On is designed to provided movies in 1080p quality with audio language in spanish and english.
 
-##Initialization
+## Initialization
 
 Before execution you need to install all dependencies this can be done using the
 [`yarn install` command](https://yarnpkg.com/en/docs/install):
