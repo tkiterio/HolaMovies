@@ -1,88 +1,76 @@
-import {CCSynchronizer} from "./CCSynchronizer";
+import * as request from "request";
+import {Synchronizer} from "./Synchronizer";
 import {DataProvider} from "./DataProvider";
+import {Movie} from "./Movie";
 
 
 export class Catalog {
 
-    private static _repository: any = {movies: []};
-
+    private static _movies: Movie[] = [];
 
     public static Initialize(): void {
         DataProvider.Initialize()
             .then(() => {
                 DataProvider.listAllMovies()
                     .then(response => {
-                        this._repository.movies = response;
-                        CCSynchronizer.Initialize(true);
+                        this._movies = response;
+                        Synchronizer.Initialize(true);
                     });
+            })
+            .catch(() => {
+                request.get(process.env.JSON_DATA_URL, (error, response, data) => {
+                    data = JSON.parse(data);
+                    data.values.forEach((value: any) => {
+                        let row: any = {};
+                        for (let i = 0; i < value.length; i++) {
+                            row[data.fields[i]] = value[i];
+                        }
+                        this._movies.push(new Movie(row));
+                    });
+                })
             })
     }
 
-    public static addMovies(movies: any[]) {
-
-        for (let movie of movies.reverse()) {
-            if (this.isNew(movie.imdb)) {
-
-                let newMovie = {
-                    order: this._repository.movies.length,
-                    imdb: movie.imdb,
-                    magnet: movie.magnet
-                };
-
-                this._repository.movies.unshift(newMovie);
-                DataProvider.addMovie(newMovie);
-            }
+    public static addMovie(movie: Movie) {
+        if (this.isNew(movie.id)) {
+            this._movies.unshift(movie);
         }
     }
 
     public static getTop10Movies(): any {
-        return this._repository.movies.slice(0, 10);
+        return this._movies.slice(0, 10);
     }
 
     public static listMetas(extra: any = {}): any {
         let metas: any = [];
 
-        for (let movie of this._repository.movies) {
-            metas.push({
-                id: movie.imdb,
-                type: "movie",
-                isFree: true,
+        if (extra.search) {
+            this._movies.filter(movie => {
+                if (movie.data.name.toLowerCase().includes(extra.search.toLowerCase())) {
+                    metas.push(movie.meta);
+                }
             });
-
-
+        } else {
+            for (let movie of this._movies) {
+                metas.push(movie.meta);
+            }
         }
-
-        // if (extra.search) {
-        //     let movies: any = [];
-        //     console.log("STARTED");
-        //
-        //     metas.forEach(async (meta: any) => {
-        //         movies.push({
-        //             imdb: meta.id,
-        //             meta: await DataProvider.getMovieMeta(meta.id)
-        //         })
-        //
-        //         if (movies.length === metas.length) {
-        //             require("fs").writeFileSync("./metasInfo.json", JSON.stringify(movies), "utf8");
-        //         }
-        //     });
-        // }
 
         return metas.slice(extra.skip || 0, Number(extra.skip || 0) + 100);
     }
 
-    public static getStream(imdb: string): any {
-        for (let movie of this._repository.movies) {
-            if (movie.imdb === imdb) {
+    public static getStream(id: string): any {
+        for (let movie of this._movies) {
+            if (movie.id === id) {
                 return [movie.magnet];
             }
         }
         return [];
     }
 
-    private static isNew(imdb: string): boolean {
-        for (let movie of this._repository.movies) {
-            if (movie.imdb === imdb) {
+    private static isNew(id: string): boolean {
+        for (let movie of this._movies) {
+            if (movie.id === id) {
                 return false;
             }
         }

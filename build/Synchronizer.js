@@ -13,8 +13,9 @@ const cheerio = require("cheerio");
 const magnet = require("magnet-uri");
 const Catalog_1 = require("./Catalog");
 const cron_1 = require("cron");
-const DataProvider_1 = require("./DataProvider");
-class CCSynchronizer {
+const Movie_1 = require("./Movie");
+const Stremio = require("stremio-addons");
+class Synchronizer {
     static Initialize(runNow = false) {
         new cron_1.CronJob(process.env.CRON_EXPRESSION || '1 1 * * * *', () => {
             this.run();
@@ -22,11 +23,13 @@ class CCSynchronizer {
         if (runNow) {
             this.run();
         }
+        this._addons = new Stremio.Client();
+        this._addons.add(this._cinemataEndpoint);
     }
     static run() {
         this._forceFinish = false;
         this._page = 1;
-        this._lastScrappedMovie = []; ///Catalog.getTop10Movies();
+        this._lastScrappedMovie = Catalog_1.Catalog.getTop10Movies();
         this.getPage(this._url + this._page);
     }
     static getPage(url) {
@@ -136,11 +139,23 @@ class CCSynchronizer {
                         }
                         else {
                             let $ = cheerio.load(html);
-                            this._movies.push({
-                                imdb: this._repositoryTorrents.tail[0].imdb,
-                                magnet: this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value),
-                                meta: yield DataProvider_1.DataProvider.getMovieMeta(this._repositoryTorrents.tail[0].imdb)
-                            });
+                            let magnet = this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value);
+                            let meta = yield this.getMovieMeta(this._repositoryTorrents.tail[0].imdb);
+                            if (meta && magnet) {
+                                let newMovie = new Movie_1.Movie({
+                                    id: this._repositoryTorrents.tail[0].imdb,
+                                    name: meta.name,
+                                    release_date: meta.release_date || meta.released || meta.dvdRelease,
+                                    runtime: meta.runtime,
+                                    type: meta.type,
+                                    year: meta.year,
+                                    info_hash: magnet.infoHash,
+                                    sources: magnet.sources,
+                                    tags: magnet.tag,
+                                    title: magnet.title
+                                });
+                                this._movies.push(newMovie);
+                            }
                             this._repositoryTorrents.done.push(torrent);
                             this._repositoryTorrents.tail.splice(0, 1);
                             this._working.scrapTorrents = false;
@@ -153,8 +168,9 @@ class CCSynchronizer {
                 }
             }
             else {
-                // require("fs").writeFileSync("./newData.json", JSON.stringify(this._movies), "utf8");
-                Catalog_1.Catalog.addMovies(this._movies);
+                this._movies.reverse().forEach((movie) => {
+                    movie.save();
+                });
                 console.log("Process Done");
             }
         }
@@ -192,21 +208,34 @@ class CCSynchronizer {
     }
     static isInLastScrapped10Movies(imdb) {
         for (let movie of this._lastScrappedMovie) {
-            if (movie.imdb === imdb) {
+            if (movie.id === imdb) {
                 return true;
             }
         }
         return false;
     }
+    static getMovieMeta(imdb_id) {
+        return new Promise(resolve => {
+            this._addons.meta.get({ query: { imdb_id } }, (error, meta) => {
+                if (error) {
+                    resolve({});
+                }
+                else {
+                    resolve(meta);
+                }
+            });
+        });
+    }
 }
-CCSynchronizer._repositoryPages = { tail: [], done: [], failed: [] };
-CCSynchronizer._repositoryTorrents = { tail: [], done: [], failed: [] };
-CCSynchronizer._movies = [];
-CCSynchronizer._working = { gettingPage: false, scrapDetails: false, scrapTorrents: false, consolidating: false };
-CCSynchronizer._url = "https://www.cinecalidad.to/page/";
-CCSynchronizer._imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
-CCSynchronizer._page = 1;
-CCSynchronizer._maxPage = Number(process.env.MAX_PAGE) || 10;
-CCSynchronizer._forceFinish = false;
-exports.CCSynchronizer = CCSynchronizer;
-//# sourceMappingURL=CCSynchronizer.js.map
+Synchronizer._repositoryPages = { tail: [], done: [], failed: [] };
+Synchronizer._repositoryTorrents = { tail: [], done: [], failed: [] };
+Synchronizer._movies = [];
+Synchronizer._working = { gettingPage: false, scrapDetails: false, scrapTorrents: false, consolidating: false };
+Synchronizer._url = "https://www.cinecalidad.to/page/";
+Synchronizer._imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
+Synchronizer._page = 1;
+Synchronizer._maxPage = Number(process.env.MAX_PAGE) || 10;
+Synchronizer._forceFinish = false;
+Synchronizer._cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
+exports.Synchronizer = Synchronizer;
+//# sourceMappingURL=Synchronizer.js.map
