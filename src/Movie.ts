@@ -16,13 +16,17 @@ export class Movie {
     get meta(): any {
         return {
             id: this._data.id,
+            name: this._data.name,
             type: this._data.type,
             isFree: true,
+            poster: `https://images.metahub.space/poster/medium/${this._data.id}/img`,
+
         };
     }
 
     get magnet(): any {
         return {
+            name: this._data.name,
             type: this._data.type,
             infoHash: this._data.info_hash,
             sources: this._data.sources,
