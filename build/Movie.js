@@ -12,6 +12,7 @@ class Movie {
     get meta() {
         return {
             id: this._data.id,
+            name: this._data.name,
             type: this._data.type,
             isFree: true,
         };

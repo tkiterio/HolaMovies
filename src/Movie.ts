@@ -16,6 +16,7 @@ export class Movie {
     get meta(): any {
         return {
             id: this._data.id,
+            name: this._data.name,
             type: this._data.type,
             isFree: true,
         };
