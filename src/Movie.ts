@@ -20,6 +20,7 @@ export class Movie {
             type: this._data.type,
             isFree: true,
             poster: `https://images.metahub.space/poster/medium/${this._data.id}/img`,
+            thumbnail: `https://images.metahub.space/poster/medium/${this._data.id}/img`,
 
         };
     }
