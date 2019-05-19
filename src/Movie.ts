@@ -16,9 +16,11 @@ export class Movie {
     get meta(): any {
         return {
             id: this._data.id,
-            name: this._data.name,
+            imdb_id: this._data.id,
             type: this._data.type,
-            poster: `https://images.metahub.space/poster/small/${this._data.id}/img`,
+            name: this._data.name,
+            releaseInfo: this._data.year,
+            poster: `https://images.metahub.space/poster/small/${this._data.id}/img`
         };
     }
 
