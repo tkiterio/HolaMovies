@@ -20,6 +20,7 @@ export class Synchronizer {
     private static _maxPage: number = Number(process.env.MAX_PAGE) || 10;
     private static _forceFinish: boolean = false;
     private static _cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
+    private static _imdbMovieDetails = "https://www.imdb.com/title/";
     private static _addons: any;
 
     public static Initialize(runNow: boolean = false): void {
@@ -156,14 +157,15 @@ export class Synchronizer {
                                 let newMovie = new Movie({
                                     id: this._repositoryTorrents.tail[0].imdb,
                                     name: meta.name,
-                                    release_date: meta.release_date || meta.released || meta.dvdRelease,
-                                    runtime: meta.runtime,
-                                    type: meta.type,
+                                    release_date: null,
+                                    runtime: 0,
+                                    type: "movie",
                                     year: meta.year,
                                     info_hash: magnet.infoHash,
                                     sources: magnet.sources,
                                     tags: magnet.tag,
-                                    title: magnet.title
+                                    title: magnet.title,
+                                    poster: meta.poster
                                 });
 
                                 this._movies.push(newMovie);
@@ -231,16 +233,31 @@ export class Synchronizer {
         return false;
     }
 
-    public static getMovieMeta(imdb_id: string): Promise<any> {
+    private static getMovieMeta(imdb_id: string): Promise<any> {
         return new Promise(resolve => {
-            this._addons.meta.get({query: {imdb_id}}, (error: any, meta: any) => {
-                if (error) {
-                    resolve({})
-                } else {
-                    resolve(meta);
-                }
-            });
-        });
+            try {
+                request.get({
+                    uri: this._imdbMovieDetails + imdb_id,
+                    timeout: 15000
+                }, async (error, response, html) => {
+                    if (error) {
+                        resolve({});
+                    } else {
+                        let $ = cheerio.load(html);
+
+                        let name = $("div.title_wrapper h1")[0].children[0].data;
+                        let year = $("span#titleYear")[0].children[1].children[0].data;
+
+                        let posterSrc = $("div.poster a img")[0].attribs.src;
+                        let poster = posterSrc.substring(0, posterSrc.indexOf("@._V1_") + 6) + "SX300.jpg";
+
+                        resolve({poster, name, year});
+                    }
+                });
+            } catch (e) {
+                resolve({});
+            }
+        })
     }
 }
 

@@ -145,14 +145,15 @@ class Synchronizer {
                                 let newMovie = new Movie_1.Movie({
                                     id: this._repositoryTorrents.tail[0].imdb,
                                     name: meta.name,
-                                    release_date: meta.release_date || meta.released || meta.dvdRelease,
-                                    runtime: meta.runtime,
-                                    type: meta.type,
+                                    release_date: null,
+                                    runtime: 0,
+                                    type: "movie",
                                     year: meta.year,
                                     info_hash: magnet.infoHash,
                                     sources: magnet.sources,
                                     tags: magnet.tag,
-                                    title: magnet.title
+                                    title: magnet.title,
+                                    poster: meta.poster
                                 });
                                 this._movies.push(newMovie);
                             }
@@ -216,14 +217,27 @@ class Synchronizer {
     }
     static getMovieMeta(imdb_id) {
         return new Promise(resolve => {
-            this._addons.meta.get({ query: { imdb_id } }, (error, meta) => {
-                if (error) {
-                    resolve({});
-                }
-                else {
-                    resolve(meta);
-                }
-            });
+            try {
+                request.get({
+                    uri: this._imdbMovieDetails + imdb_id,
+                    timeout: 15000
+                }, (error, response, html) => __awaiter(this, void 0, void 0, function* () {
+                    if (error) {
+                        resolve({});
+                    }
+                    else {
+                        let $ = cheerio.load(html);
+                        let name = $("div.title_wrapper h1")[0].children[0].data;
+                        let year = $("span#titleYear")[0].children[1].children[0].data;
+                        let posterSrc = $("div.poster a img")[0].attribs.src;
+                        let poster = posterSrc.substring(0, posterSrc.indexOf("@._V1_") + 6) + "SX300.jpg";
+                        resolve({ poster, name, year });
+                    }
+                }));
+            }
+            catch (e) {
+                resolve({});
+            }
         });
     }
 }
@@ -237,5 +251,6 @@ Synchronizer._page = 1;
 Synchronizer._maxPage = Number(process.env.MAX_PAGE) || 10;
 Synchronizer._forceFinish = false;
 Synchronizer._cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
+Synchronizer._imdbMovieDetails = "https://www.imdb.com/title/";
 exports.Synchronizer = Synchronizer;
 //# sourceMappingURL=Synchronizer.js.map
