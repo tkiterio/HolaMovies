@@ -16,10 +16,11 @@ export class Synchronizer {
     private static _url: string = "https://www.cinecalidad.to/page/";
     private static _imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
     private static _lastScrappedMovie: any;
-    private static _page: number = 1;
+    private static _page: number = 133;
     private static _maxPage: number = Number(process.env.MAX_PAGE) || 10;
     private static _forceFinish: boolean = false;
     private static _cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
+    private static _imdbMovieDetails = "https://www.imdb.com/title/";
     private static _addons: any;
 
     public static Initialize(runNow: boolean = false): void {
@@ -151,6 +152,7 @@ export class Synchronizer {
 
                             let magnet = this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value);
                             let meta = await this.getMovieMeta(this._repositoryTorrents.tail[0].imdb);
+                            // let poster = await this.getMoviePoster(this._repositoryTorrents.tail[0].imdb);
 
                             if (meta && magnet) {
                                 let newMovie = new Movie({
@@ -163,7 +165,7 @@ export class Synchronizer {
                                     info_hash: magnet.infoHash,
                                     sources: magnet.sources,
                                     tags: magnet.tag,
-                                    title: magnet.title
+                                    title: magnet.title,
                                 });
 
                                 this._movies.push(newMovie);
@@ -237,10 +239,46 @@ export class Synchronizer {
                 if (error) {
                     resolve({})
                 } else {
-                    resolve(meta);
+                    resolve(meta || {});
                 }
             });
         });
+    }
+
+    private static getMoviePoster(imdb_id: string): Promise<any> {
+        return new Promise(resolve => {
+            try {
+                request.get({
+                    uri: this._imdbMovieDetails + imdb_id,
+                    timeout: 15000
+                }, async (error, response, html) => {
+                    if (error) {
+                        resolve({});
+                    } else {
+                        let $ = cheerio.load(html);
+
+                        let name = $("div.title_wrapper h1")[0].children[0].data;
+                        let year = $("span#titleYear")[0].children[1].children[0].data;
+
+                        let txtBlocks = $("div#titleDetails .txt-block");
+                        for (let key in txtBlocks) {
+                            let block = txtBlocks[key];
+                            console.log("");
+                        }
+
+                        let posterSrc = $("div.poster a img")[0].attribs.src;
+                        let poster = posterSrc.substring(0, posterSrc.indexOf("@._V1_") + 6) + "SX300.jpg";
+
+
+                        resolve({
+                            poster
+                        });
+                    }
+                });
+            } catch (e) {
+                resolve("");
+            }
+        })
     }
 }
 

@@ -16,7 +16,7 @@ class Movie {
             type: this._data.type,
             name: this._data.name,
             releaseInfo: this._data.year,
-            poster: `https://images.metahub.space/poster/small/${this._data.id}/img`
+            poster: this._data.poster || `https://images.metahub.space/poster/small/${this._data.id}/img`
         };
     }
     get magnet() {
