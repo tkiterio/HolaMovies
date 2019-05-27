@@ -16,7 +16,7 @@ export class Synchronizer {
     private static _url: string = "https://www.cinecalidad.to/page/";
     private static _imdbRegex = /imdb\.com\/title\/tt[0-9]+\//;
     private static _lastScrappedMovie: any;
-    private static _page: number = 133;
+    private static _page: number = 1;
     private static _maxPage: number = Number(process.env.MAX_PAGE) || 10;
     private static _forceFinish: boolean = false;
     private static _cinemataEndpoint = "http://cinemeta.strem.io/stremioget/stremio/v1";
@@ -152,20 +152,20 @@ export class Synchronizer {
 
                             let magnet = this.magnetTransform("movie", $("#contenido #texto input")[0].attribs.value);
                             let meta = await this.getMovieMeta(this._repositoryTorrents.tail[0].imdb);
-                            // let poster = await this.getMoviePoster(this._repositoryTorrents.tail[0].imdb);
 
                             if (meta && magnet) {
                                 let newMovie = new Movie({
                                     id: this._repositoryTorrents.tail[0].imdb,
                                     name: meta.name,
-                                    release_date: meta.release_date || meta.released || meta.dvdRelease,
-                                    runtime: meta.runtime,
-                                    type: meta.type,
+                                    release_date: null,
+                                    runtime: 0,
+                                    type: "movie",
                                     year: meta.year,
                                     info_hash: magnet.infoHash,
                                     sources: magnet.sources,
                                     tags: magnet.tag,
                                     title: magnet.title,
+                                    poster: meta.poster
                                 });
 
                                 this._movies.push(newMovie);
@@ -233,19 +233,7 @@ export class Synchronizer {
         return false;
     }
 
-    public static getMovieMeta(imdb_id: string): Promise<any> {
-        return new Promise(resolve => {
-            this._addons.meta.get({query: {imdb_id}}, (error: any, meta: any) => {
-                if (error) {
-                    resolve({})
-                } else {
-                    resolve(meta || {});
-                }
-            });
-        });
-    }
-
-    private static getMoviePoster(imdb_id: string): Promise<any> {
+    private static getMovieMeta(imdb_id: string): Promise<any> {
         return new Promise(resolve => {
             try {
                 request.get({
@@ -260,23 +248,14 @@ export class Synchronizer {
                         let name = $("div.title_wrapper h1")[0].children[0].data;
                         let year = $("span#titleYear")[0].children[1].children[0].data;
 
-                        let txtBlocks = $("div#titleDetails .txt-block");
-                        for (let key in txtBlocks) {
-                            let block = txtBlocks[key];
-                            console.log("");
-                        }
-
                         let posterSrc = $("div.poster a img")[0].attribs.src;
                         let poster = posterSrc.substring(0, posterSrc.indexOf("@._V1_") + 6) + "SX300.jpg";
 
-
-                        resolve({
-                            poster
-                        });
+                        resolve({poster, name, year});
                     }
                 });
             } catch (e) {
-                resolve("");
+                resolve({});
             }
         })
     }
