@@ -36,7 +36,7 @@ export class Movie {
     }
 
     get insertString(): string {
-        return `'${this._data.id}','${this._data.name}','${this._data.release_date}','${this._data.runtime}','${this._data.type}','${this._data.year}','${this._data.info_hash}','${JSON.stringify(this._data.sources)}','${JSON.stringify(this._data.tags)}','${this._data.title}'`;
+        return `'${this._data.id}','${this._data.name}','${this._data.release_date}','${this._data.runtime}','${this._data.type}','${this._data.year}','${this._data.info_hash}','${JSON.stringify(this._data.sources)}','${JSON.stringify(this._data.tags)}','${this._data.title}','${this._data.poster}'`;
     }
 
     get data(): any {

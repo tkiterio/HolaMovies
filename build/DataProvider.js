@@ -43,7 +43,15 @@ class DataProvider {
         });
     }
     static addMovie(movie) {
-        this._client.query(`INSERT INTO holamovies.imdb_movies (id, name, release_date, runtime, type, "year", info_hash, sources, tags, title) VALUES (${movie.insertString})`, (err, res) => {
+        this._client.query(`INSERT INTO holamovies.imdb_movies (id, name, release_date, runtime, type, "year", info_hash, sources, tags, title, poster) VALUES (${movie.insertString})`, (err, res) => {
+            if (err) {
+                console.log("Error creating new movie");
+                console.log(err);
+            }
+        });
+    }
+    static updatePoster(movie) {
+        this._client.query(`UPDATE holamovies.imdb_movies SET poster = '${movie.data.poster}' WHERE id = '${movie.id}'`, (err, res) => {
             if (err) {
                 console.log("Error creating new movie");
                 console.log(err);
