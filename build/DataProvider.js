@@ -23,6 +23,7 @@ class DataProvider {
                 let serviceAccount = {};
                 if (process.env.FIREBASE_CREDENTIALS) {
                     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+                    console.log(serviceAccount);
                 }
                 else {
                     serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
