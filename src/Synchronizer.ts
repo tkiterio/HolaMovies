@@ -233,7 +233,7 @@ export class Synchronizer {
         return false;
     }
 
-    private static getMovieMeta(imdb_id: string): Promise<any> {
+    public static getMovieMeta(imdb_id: string): Promise<any> {
         return new Promise(resolve => {
             try {
                 request.get({

@@ -39,7 +39,16 @@ export class DataProvider {
     }
 
     public static addMovie(movie: Movie): void {
-        this._client.query(`INSERT INTO holamovies.imdb_movies (id, name, release_date, runtime, type, "year", info_hash, sources, tags, title) VALUES (${movie.insertString})`, (err: any, res: any) => {
+        this._client.query(`INSERT INTO holamovies.imdb_movies (id, name, release_date, runtime, type, "year", info_hash, sources, tags, title, poster) VALUES (${movie.insertString})`, (err: any, res: any) => {
+            if (err) {
+                console.log("Error creating new movie");
+                console.log(err);
+            }
+        });
+    }
+
+    public static updatePoster(movie: Movie): void {
+        this._client.query(`UPDATE holamovies.imdb_movies SET poster = '${movie.data.poster}' WHERE id = '${movie.id}'`, (err: any, res: any) => {
             if (err) {
                 console.log("Error creating new movie");
                 console.log(err);
