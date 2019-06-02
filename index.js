@@ -13,7 +13,7 @@ app.use(cors());
 
 app.all('*', (req, res, next) => {
     let log = {
-        headers: JSON.stringify(req.headers),
+        headers: req.headers,
         params: req.params,
         url: req.url,
         ip: req.headers['x-forwarded-for'] ||
