@@ -22,7 +22,7 @@ class DataProvider {
                 yield this._client.connect();
                 let serviceAccount = {};
                 if (process.env.FIREBASE_CREDENTIALS) {
-                    serviceAccount = process.env.FIREBASE_CREDENTIALS;
+                    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
                 }
                 else {
                     serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
