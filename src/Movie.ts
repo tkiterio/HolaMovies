@@ -1,6 +1,5 @@
 import {Catalog} from "./Catalog";
 import {DataProvider} from "./DataProvider";
-import {Synchronizer} from "./Synchronizer";
 
 export class Movie {
 
@@ -8,11 +7,6 @@ export class Movie {
 
     constructor(data: any) {
         this._data = data;
-        Synchronizer.getMovieMeta(this._data.id)
-            .then(meta => {
-                this._data.poster = meta.poster;
-                DataProvider.updatePoster(this);
-            })
     }
 
     get id(): string {

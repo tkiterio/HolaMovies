@@ -2,15 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Catalog_1 = require("./Catalog");
 const DataProvider_1 = require("./DataProvider");
-const Synchronizer_1 = require("./Synchronizer");
 class Movie {
     constructor(data) {
         this._data = data;
-        Synchronizer_1.Synchronizer.getMovieMeta(this._data.id)
-            .then(meta => {
-            this._data.poster = meta.poster;
-            DataProvider_1.DataProvider.updatePoster(this);
-        });
     }
     get id() {
         return this._data.id;
