@@ -1,9 +1,11 @@
 import {Client} from "pg";
 import {Movie} from "./Movie";
+import {initializeApp, credential, database} from "firebase-admin";
 
 export class DataProvider {
 
     private static _client: any;
+    private static _dbRefLogs: any;
 
     public static Initialize(): Promise<any> {
         return new Promise(async (resolve, reject) => {
@@ -14,6 +16,21 @@ export class DataProvider {
                 });
 
                 await this._client.connect();
+
+                let serviceAccount = {};
+
+                if (process.env.FIREBASE_CREDENTIALS) {
+                    serviceAccount = process.env.FIREBASE_CREDENTIALS;
+                } else {
+                    serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
+                }
+
+                initializeApp({
+                    credential: credential.cert(serviceAccount),
+                    databaseURL: process.env.FIREBASE_DATABASE_URL
+                });
+
+                this._dbRefLogs = database().ref("logs");
 
                 resolve();
             } catch (e) {
@@ -54,5 +71,9 @@ export class DataProvider {
                 console.log(err);
             }
         });
+    }
+
+    public static log(type: string, payload: any): void {
+        this._dbRefLogs.push().set({type, payload});
     }
 }
