@@ -4,6 +4,7 @@ const DataProvider = require("./build/DataProvider").DataProvider;
 const holaMovies = new (require("./build/HolaMovies").HolaMovies)();
 const express = require('express');
 const cors = require('cors');
+const qs = require('querystring');
 const landingTemplate = require('stremio-addon-sdk/src/landingTemplate');
 
 const app = express();
@@ -36,6 +37,7 @@ app.get("/manifest.json", (req, res) => {
 
 app.get('/:resource/:type/:id/:extra?.json', async (req, res) => {
     let response = {};
+    req.params.extra = req.params.extra ? qs.parse(req.params.extra) : {};
     if (req.params.resource === "catalog") {
         response = await holaMovies.catalogHandler(req.params);
     } else if (req.params.resource === "stream") {
