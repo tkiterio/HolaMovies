@@ -22,6 +22,7 @@ class DataProvider {
                 yield this._client.connect();
                 let serviceAccount = {};
                 if (process.env.FIREBASE_CREDENTIALS) {
+                    console.log(process.env.FIREBASE_CREDENTIALS);
                     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
                 }
                 else {
@@ -72,7 +73,9 @@ class DataProvider {
         });
     }
     static log(type, payload) {
-        this._dbRefLogs.push().set({ type, payload });
+        if (this._dbRefLogs) {
+            this._dbRefLogs.push().set({ type, payload });
+        }
     }
 }
 exports.DataProvider = DataProvider;

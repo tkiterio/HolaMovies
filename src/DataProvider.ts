@@ -20,6 +20,7 @@ export class DataProvider {
                 let serviceAccount = {};
 
                 if (process.env.FIREBASE_CREDENTIALS) {
+                    console.log(process.env.FIREBASE_CREDENTIALS);
                     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
                 } else {
                     serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
@@ -74,6 +75,8 @@ export class DataProvider {
     }
 
     public static log(type: string, payload: any): void {
-        this._dbRefLogs.push().set({type, payload});
+        if(this._dbRefLogs) {
+            this._dbRefLogs.push().set({type, payload});
+        }
     }
 }
