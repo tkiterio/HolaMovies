@@ -1,8 +1,52 @@
 #!/usr/bin/env node
 
-const {serveHTTP, publishToCentral} = require("stremio-addon-sdk");
+const DataProvider = require("./build/DataProvider").DataProvider;
 const holaMovies = new (require("./build/HolaMovies").HolaMovies)();
+const express = require('express');
+const cors = require('cors');
+const landingTemplate = require('stremio-addon-sdk/src/landingTemplate');
 
-serveHTTP(holaMovies.getInterface(), {port: process.env.PORT || 56641});
+const app = express();
 
-publishToCentral("https://holamovies.herokuapp.com/manifest.json");
+app.use(cors());
+
+app.all('*', (req, res, next) => {
+    let log = {
+        headers: req.headers,
+        params: req.params,
+        url: req.url,
+        ip: req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            (req.connection.socket ? req.connection.socket.remoteAddress : null)
+    };
+    DataProvider.log("REQUEST", log);
+    next();
+});
+
+app.get('/', (req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(landingTemplate(holaMovies.getManifest()))
+});
+
+app.get("/manifest.json", (req, res) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify(holaMovies.getManifest()));
+});
+
+app.get('/:resource/:type/:id/:extra?.json', async (req, res) => {
+    let response = {};
+    if (req.params.resource === "catalog") {
+        response = await holaMovies.catalogHandler(req.params);
+    } else if (req.params.resource === "stream") {
+        response = await holaMovies.streamHandler(req.params);
+    }
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify(response));
+});
+
+app.listen(process.env.PORT || 56641, function () {
+    console.log(`http://127.0.0.1:${this.address().port}/manifest.json`);
+});
+
+require("stremio-addon-sdk").publishToCentral("https://holamovies.herokuapp.com/manifest.json");
