@@ -74,8 +74,8 @@ export class DataProvider {
     }
 
     public static log(type: string, payload: any): void {
-        if(this._dbRefLogs) {
-            this._dbRefLogs.push().set({type, payload});
+        if (this._dbRefLogs) {
+            this._dbRefLogs.push().set({type, payload, date: Date.now()});
         }
     }
 }
