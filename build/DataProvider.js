@@ -73,7 +73,7 @@ class DataProvider {
     }
     static log(type, payload) {
         if (this._dbRefLogs) {
-            this._dbRefLogs.push().set({ type, payload });
+            this._dbRefLogs.push().set({ type, payload, date: Date.now() });
         }
     }
 }
