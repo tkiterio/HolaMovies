@@ -19,6 +19,7 @@ export class Movie {
             imdb_id: this._data.id,
             type: this._data.type,
             name: this._data.name,
+            title: this._data.title,
             releaseInfo: this._data.year,
             poster: this._data.poster || `https://images.metahub.space/poster/small/${this._data.id}/img`
         };
@@ -26,7 +27,7 @@ export class Movie {
 
     get magnet(): any {
         return {
-            name: this._data.name,
+            name: "¡Hola! Movies",
             type: this._data.type,
             infoHash: this._data.info_hash,
             sources: this._data.sources,

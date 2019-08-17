@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const pg_1 = require("pg");
 const Movie_1 = require("./Movie");
-const firebase_admin_1 = require("firebase-admin");
 class DataProvider {
+    // private static _dbRefLogs: any;
     static Initialize() {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -20,18 +20,19 @@ class DataProvider {
                     ssl: true,
                 });
                 yield this._client.connect();
-                let serviceAccount = {};
-                if (process.env.FIREBASE_CREDENTIALS) {
-                    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
-                }
-                else {
-                    serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
-                }
-                firebase_admin_1.initializeApp({
-                    credential: firebase_admin_1.credential.cert(serviceAccount),
-                    databaseURL: process.env.FIREBASE_DATABASE_URL
-                });
-                this._dbRefLogs = firebase_admin_1.database().ref("logs");
+                // let serviceAccount = {};
+                //
+                // if (process.env.FIREBASE_CREDENTIALS) {
+                //     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+                // } else {
+                //     serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
+                // }
+                // initializeApp({
+                //     credential: credential.cert(serviceAccount),
+                //     databaseURL: process.env.FIREBASE_DATABASE_URL
+                // });
+                //
+                // this._dbRefLogs = database().ref("logs");
                 resolve();
             }
             catch (e) {
@@ -70,11 +71,6 @@ class DataProvider {
                 console.log(err);
             }
         });
-    }
-    static log(type, payload) {
-        if (this._dbRefLogs) {
-            this._dbRefLogs.push().set({ type, payload, date: Date.now() });
-        }
     }
 }
 exports.DataProvider = DataProvider;
