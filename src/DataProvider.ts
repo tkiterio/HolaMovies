@@ -5,7 +5,7 @@ import {initializeApp, credential, database} from "firebase-admin";
 export class DataProvider {
 
     private static _client: any;
-    private static _dbRefLogs: any;
+    // private static _dbRefLogs: any;
 
     public static Initialize(): Promise<any> {
         return new Promise(async (resolve, reject) => {
@@ -17,20 +17,20 @@ export class DataProvider {
 
                 await this._client.connect();
 
-                let serviceAccount = {};
+                // let serviceAccount = {};
+                //
+                // if (process.env.FIREBASE_CREDENTIALS) {
+                //     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+                // } else {
+                //     serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
+                // }
 
-                if (process.env.FIREBASE_CREDENTIALS) {
-                    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
-                } else {
-                    serviceAccount = require(process.env.FIREBASE_CREDENTIALS_LOCAL);
-                }
-
-                initializeApp({
-                    credential: credential.cert(serviceAccount),
-                    databaseURL: process.env.FIREBASE_DATABASE_URL
-                });
-
-                this._dbRefLogs = database().ref("logs");
+                // initializeApp({
+                //     credential: credential.cert(serviceAccount),
+                //     databaseURL: process.env.FIREBASE_DATABASE_URL
+                // });
+                //
+                // this._dbRefLogs = database().ref("logs");
 
                 resolve();
             } catch (e) {
@@ -73,9 +73,9 @@ export class DataProvider {
         });
     }
 
-    public static log(type: string, payload: any): void {
-        if (this._dbRefLogs) {
-            this._dbRefLogs.push().set({type, payload, date: Date.now()});
-        }
-    }
+    // public static log(type: string, payload: any): void {
+    //     if (this._dbRefLogs) {
+    //         this._dbRefLogs.push().set({type, payload, date: Date.now()});
+    //     }
+    // }
 }

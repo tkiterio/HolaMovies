@@ -1,6 +1,6 @@
 {
   "name": "holamovies",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Stremio Add-On for watch movies in spanish and english",
   "main": "index.js",
   "repository": "https://github.com/shadowcoder89/HolaMovies.git",

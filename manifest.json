@@ -1,6 +1,10 @@
 {
   "id": "com.herokuapp.dsambo.holamovies",
-  "version": "2.0.0",
+  "version": "2.0.1",
+  "name": "¡Hola! Movies",
+  "description": "Watch movies in spanish and english",
+  "icon": "https://holamovies.herokuapp.com/holamovies.png",
+  "logo": "https://holamovies.herokuapp.com/holamovies.png",
   "catalogs": [
     {
       "type": "movie",
@@ -24,8 +28,6 @@
   "types": [
     "movie"
   ],
-  "name": "¡Hola! Movies",
-  "description": "Watch movies in spanish and english",
   "idPrefixes": [
     "tt"
   ]
